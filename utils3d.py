@@ -4,6 +4,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+from PIL import Image
 
 
 def get_dimensions(filename):
@@ -22,16 +23,41 @@ def read_raw(filepath):
     return np.reshape(arr, (d, h, w))
 
 
+def convert_to_float(image, bits=16):
+    if image.max() > 1:
+        img = (image / (2**bits - 1)).astype(np.float32)
+        return img
+    return image
+
+
 def crop_image(image, px=40):
     """Crops an image"""
+    if len(image.shape) > 2:
+        return image[:, px : (image.shape[0] - px), px : (image.shape[1] - px)]
     return image[px : (image.shape[0] - px), px : (image.shape[1] - px)]
+
+
+def overlay_mask(image, alpha, mask, beta, gamma=0, mask_color_rgb=(1, 0, 0)):
+    # blend the images
+    img = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    msk = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
+    mask_color_rgb = 1 - np.array(mask_color_rgb)
+    img = np.moveaxis(img, -1, 0)
+    msk = np.moveaxis(msk, -1, 0)
+    msk = np.array([msk[j, :, :] * mask_color_rgb[j] for j in range(3)])
+    img_out = cv2.addWeighted(img, alpha, msk, beta, gamma)
+    img_out = np.moveaxis(img_out, 0, -1)
+    return img_out
 
 
 def plot_image(image):
     """Plots an image"""
-    plt.imshow(image, cmap=plt.cm.gray_r)
+    if len(image.shape) > 2:
+        plt.imshow(1 - image)
+    else:
+        plt.imshow(cv2.cvtColor(1 - image, cv2.COLOR_GRAY2RGB))
     plt.axis("off")
-    return plt.show()
+    plt.show()
 
 
 def plot_slice(im_array, i):
@@ -104,7 +130,6 @@ def cut_and_save(
             )
 
         for nm, im in qd_dict.items():
-            im_ = (im / (2**16 - 1)).astype(float)
             if output_size:
                 im_ = cv2.resize(im_, output_size, interpolation=cv2.INTER_AREA)
             im_ = ((1 - im_) * (2 ** (8 if eight_bit else 16) - 1)).astype(
