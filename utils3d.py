@@ -43,7 +43,7 @@ def quadrants(image, overlap=0.05):
     return image[0:midy+oly,0:midx+olx],image[0:midy+oly,midx-olx:],image[midy-oly:,0:midx+olx],image[midy-oly:,midx-olx:]
 
 
-def hexants(image, overlap=0.05):
+def nineths(image, overlap=0.05):
     """Splits image into 6 parts using an overlap"""
     h,w = image.shape
     oly = int(h*overlap)
@@ -71,10 +71,10 @@ def cut_and_save(filepath, output_size = (512,512),crop=True,cut='quad', eight_b
         
         if cut == 'quad':
             qd_dict = dict(zip(['00','01','10','11'],quadrants(slice_)))
-        elif cut == 'hex':
-            qd_dict = dict(zip(['00','01','02','10','11','12','20','21','22'],hexants(slice_)))
+        elif cut == 'nine':
+            qd_dict = dict(zip(['00','01','02','10','11','12','20','21','22'],nineths(slice_)))
         else:
-            raise ValueError(f'{cut} is not valid for cut. Must be one of ["quad","hex"].')
+            raise ValueError(f'{cut} is not valid for cut. Must be one of ["quad","nine"].')
         
         for nm,im in qd_dict.items():
             im_ = (im/(2**16-1)).astype(float)
