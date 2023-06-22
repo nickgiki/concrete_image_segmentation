@@ -50,20 +50,25 @@ def overlay_mask(image, alpha, mask, beta, gamma=0, mask_color_rgb=(1, 0, 0)):
     return img_out
 
 
-def plot_image(image):
+def plot_image(image, to_float=False):
     """Plots an image"""
+
     if len(image.shape) > 2:
-        plt.imshow(1 - image)
+        plt.imshow(1 - convert_to_float(image) if to_float else image)
     else:
-        plt.imshow(cv2.cvtColor(1 - image, cv2.COLOR_GRAY2RGB))
+        plt.imshow(
+            cv2.cvtColor(
+                1 - convert_to_float(image) if to_float else image, cv2.COLOR_GRAY2RGB
+            )
+        )
     plt.axis("off")
     plt.show()
 
 
-def plot_slice(im_array, i):
+def plot_slice(im_array, i, to_float=False):
     """Plots a slice of a 3d image given its z index"""
     im_ = im_array[i, :, :]
-    return plot_image(im_)
+    return plot_image(im_, to_float=to_float)
 
 
 def quadrants(image, overlap=0.05):
@@ -130,6 +135,7 @@ def cut_and_save(
             )
 
         for nm, im in qd_dict.items():
+            im_ = convert_to_float(im)
             if output_size:
                 im_ = cv2.resize(im_, output_size, interpolation=cv2.INTER_AREA)
             im_ = ((1 - im_) * (2 ** (8 if eight_bit else 16) - 1)).astype(
