@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from PIL import Image
+from shutil import move
 
 
 def get_dimensions(filename):
@@ -143,3 +144,34 @@ def cut_and_save(
             )
             fname = f"{dir_name}/{dir_name}_{str(i).rjust(4,'0')}_{nm}.png"
             cv2.imwrite(fname, im_)
+
+def train_test_split(folder_path, train_p=.75, drop_p=.05, test_p=.2):
+    """
+    Gets a folder path with names generated from 
+    cut_and_save and splits to train, drop and test
+    """
+    cwd = os.getcwd()
+    try:
+        assert train_p + drop_p + test_p == 1, "percentages must add up to 1"
+        os.chdir(folder_path)
+        os.makedirs('train',exist_ok=1)
+        os.makedirs('drop',exist_ok=1)
+        os.makedirs('test',exist_ok=1)
+
+        indices = [(f,int(re.findall(r'\d{4}_\d{2}.png',f)[0].split('_')[0])) for f in os.listdir() if f.endswith('.png')]
+
+        n_ind = len(set([i for f,i in indices]))
+
+        train_cutoff,test_cutoff = round(train_p*n_ind),round((train_p + drop_p)*n_ind)
+
+        for f,i in indices:
+            if i<train_cutoff:
+                move(f,'train')
+            elif i<test_cutoff:
+                move(f,'drop')
+            else:
+                move(f,'test')
+    except Exception as e:
+        print(f"An error has occured:\n- {e}")
+    finally:
+        os.chdir(cwd)
