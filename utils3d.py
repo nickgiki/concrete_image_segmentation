@@ -4,7 +4,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
-from PIL import Image
 from shutil import move
 
 
@@ -106,9 +105,7 @@ def nineths(image, overlap=0.05):
     )
 
 
-def cut_and_save(
-    filepath, output_size=(572, 572), crop=True, cut="quad", eight_bit=True
-):
+def cut_and_save(filepath, output_size=(572, 572), crop=0, cut="quad", eight_bit=True):
     """Gets a raw 3D image file path and saves to new dir"""
     im_ar = read_raw(filepath)
 
@@ -119,7 +116,7 @@ def cut_and_save(
     for i in range(im_ar.shape[0]):
         slice_ = im_ar[i, :, :]
         if crop:
-            slice_ = crop_image(slice_.copy())
+            slice_ = crop_image(slice_.copy(), px=crop)
 
         if cut == "quad":
             qd_dict = dict(zip(["00", "01", "10", "11"], quadrants(slice_)))
@@ -145,32 +142,39 @@ def cut_and_save(
             fname = f"{dir_name}/{dir_name}_{str(i).rjust(4,'0')}_{nm}.png"
             cv2.imwrite(fname, im_)
 
-def train_test_split(folder_path, train_p=.75, drop_p=.05, test_p=.2):
+
+def train_test_split(folder_path, train_p=0.75, drop_p=0.05, test_p=0.2):
     """
-    Gets a folder path with names generated from 
+    Gets a folder path with names generated from
     cut_and_save and splits to train, drop and test
     """
     cwd = os.getcwd()
     try:
         assert train_p + drop_p + test_p == 1, "percentages must add up to 1"
         os.chdir(folder_path)
-        os.makedirs('train',exist_ok=1)
-        os.makedirs('drop',exist_ok=1)
-        os.makedirs('test',exist_ok=1)
+        os.makedirs("train", exist_ok=1)
+        os.makedirs("drop", exist_ok=1)
+        os.makedirs("test", exist_ok=1)
 
-        indices = [(f,int(re.findall(r'\d{4}_\d{2}.png',f)[0].split('_')[0])) for f in os.listdir() if f.endswith('.png')]
+        indices = [
+            (f, int(re.findall(r"\d{4}_\d{2}.png", f)[0].split("_")[0]))
+            for f in os.listdir()
+            if f.endswith(".png")
+        ]
 
-        n_ind = len(set([i for f,i in indices]))
+        n_ind = len(set([i for f, i in indices]))
 
-        train_cutoff,test_cutoff = round(train_p*n_ind),round((train_p + drop_p)*n_ind)
+        train_cutoff, test_cutoff = round(train_p * n_ind), round(
+            (train_p + drop_p) * n_ind
+        )
 
-        for f,i in indices:
-            if i<train_cutoff:
-                move(f,'train')
-            elif i<test_cutoff:
-                move(f,'drop')
+        for f, i in indices:
+            if i < train_cutoff:
+                move(f, "train")
+            elif i < test_cutoff:
+                move(f, "drop")
             else:
-                move(f,'test')
+                move(f, "test")
     except Exception as e:
         print(f"An error has occured:\n- {e}")
     finally:
