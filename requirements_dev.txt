@@ -1,0 +1,4 @@
+spyder
+spyder-notebook
+black
+black[jupyter]
