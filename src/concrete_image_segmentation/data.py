@@ -61,7 +61,7 @@ def trainGenerator(
     flag_multi_class=False,
     num_class=2,
     save_to_dir=None,
-    target_size=(572, 572),
+    target_size=(512, 512),
     seed=1,
 ):
     """
@@ -102,7 +102,7 @@ def trainGenerator(
 def testGenerator(
     test_path,
     num_image=20,
-    target_size=(572, 572),
+    target_size=(512, 512),
     flag_multi_class=False,
     as_gray=True,
 ):
