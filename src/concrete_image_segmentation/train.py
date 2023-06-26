@@ -1,5 +1,5 @@
-from unet import *
-from data import *
+from concrete_image_segmentation.unet import *
+from concrete_image_segmentation.data import *
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
