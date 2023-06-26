@@ -6,13 +6,13 @@ import glob
 import skimage.io as io
 import skimage.transform as trans
 
-Sky = [128, 0, 0 ]
+Pumice = [128, 0, 0 ]
 
 Unlabelled = [0, 0, 0]
 
 COLOR_DICT = np.array(
     [
-        Sky,
+        Pumice,
         Unlabelled,
     ]
 )
@@ -56,8 +56,8 @@ def trainGenerator(
     aug_dict,
     image_color_mode="grayscale",
     mask_color_mode="grayscale",
-    image_save_prefix="image",
-    mask_save_prefix="mask",
+    image_save_prefix="",
+    mask_save_prefix="",
     flag_multi_class=False,
     num_class=2,
     save_to_dir=None,
