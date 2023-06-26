@@ -7,6 +7,17 @@ import cv2
 from shutil import move
 
 
+def extract_zip(zip_file_path):
+    from zipfile import ZipFile
+
+    with ZipFile(file_name, "r") as zip:
+        # printing all the contents of the zip file
+        zip.printdir()
+        print("Extracting all the files now...")
+        zip.extractall()
+        print("Done!")
+
+
 def get_dimensions(filename):
     """Returns the dimensions of the raw picture from the filename"""
     return [
