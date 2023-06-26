@@ -6,32 +6,13 @@ import glob
 import skimage.io as io
 import skimage.transform as trans
 
-Sky = [128, 128, 128]
-Building = [128, 0, 0]
-Pole = [192, 192, 128]
-Road = [128, 64, 128]
-Pavement = [60, 40, 222]
-Tree = [128, 128, 0]
-SignSymbol = [192, 128, 128]
-Fence = [64, 64, 128]
-Car = [64, 0, 128]
-Pedestrian = [64, 64, 0]
-Bicyclist = [0, 128, 192]
+Sky = [128, 0, 0 ]
+
 Unlabelled = [0, 0, 0]
 
 COLOR_DICT = np.array(
     [
         Sky,
-        Building,
-        Pole,
-        Road,
-        Pavement,
-        Tree,
-        SignSymbol,
-        Fence,
-        Car,
-        Pedestrian,
-        Bicyclist,
         Unlabelled,
     ]
 )
@@ -80,7 +61,7 @@ def trainGenerator(
     flag_multi_class=False,
     num_class=2,
     save_to_dir=None,
-    target_size=(256, 256),
+    target_size=(572, 572),
     seed=1,
 ):
     """
@@ -120,8 +101,8 @@ def trainGenerator(
 
 def testGenerator(
     test_path,
-    num_image=30,
-    target_size=(256, 256),
+    num_image=20,
+    target_size=(572, 572),
     flag_multi_class=False,
     as_gray=True,
 ):
@@ -139,8 +120,8 @@ def geneTrainNpy(
     mask_path,
     flag_multi_class=False,
     num_class=2,
-    image_prefix="image",
-    mask_prefix="mask",
+    image_prefix="",
+    mask_prefix="",
     image_as_gray=True,
     mask_as_gray=True,
 ):
