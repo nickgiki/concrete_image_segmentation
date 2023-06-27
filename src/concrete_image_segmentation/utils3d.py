@@ -18,10 +18,12 @@ def extract_zip(zip_file_path):
         zip.extractall()
         print("Done!")
 
-def make_zip(dir_names,master_dir_name, zip_name):
+
+def make_zip(dir_names, master_dir_name, zip_name):
     for dir_ in dir_names:
-        shutil.move(dir_,f"{master_dir_name}/{dir_}")
-    shutil.make_archive(zip_name, 'zip', master_dir_name)
+        shutil.move(dir_, f"{master_dir_name}/{dir_}")
+    shutil.make_archive(zip_name, "zip", master_dir_name)
+
 
 def get_dimensions(filename):
     """Returns the dimensions of the raw picture from the filename"""
@@ -194,6 +196,15 @@ def train_test_split(
                 move(f, f"{cwd}/drop/{'label' if mask_kwd in f else 'images'}")
             else:
                 move(f, f"{cwd}/test/{'label' if mask_kwd in f else 'images'}")
+        for f in os.listdir(f"{cwd}/train/label"):
+            if f.endswith(".png"):
+                os.rename(
+                    f"{cwd}/train/label/{f}",
+                    f"{cwd}/train/label/{f}".replace("-Mask", ""),
+                )
+                assert f"{cwd}/train/label/{f}".replace("-Mask", "") in os.listdir(
+                    f"{cwd}/train/image"
+                )
     except Exception as e:
         print(f"An error has occured:\n- {e}")
     finally:
