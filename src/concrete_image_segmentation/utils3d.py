@@ -203,9 +203,7 @@ def train_test_split(
                     f"{cwd}/train/label/{f}",
                     f"{cwd}/train/label/{f}".replace("-Mask", ""),
                 )
-                assert f.replace("-Mask", "") in os.listdir(
-                    f"{cwd}/train/images"
-                )
+                assert f.replace("-Mask", "") in os.listdir(f"{cwd}/train/images")
     except Exception as e:
         print(f"An error has occured:\n- {e}")
     finally:

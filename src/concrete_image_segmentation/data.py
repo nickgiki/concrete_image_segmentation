@@ -21,14 +21,16 @@ COLOR_DICT = np.array(
     ]
 )
 
+
 def set_seed(seed=0):
-  np.random.seed(seed) 
-  tf_rand.set_seed(seed) 
-  set_random_seed(seed)
-  random.seed(seed)
-  os.environ['TF_DETERMINISTIC_OPS'] = "1"
-  os.environ['TF_CUDNN_DETERMINISM'] = "1"
-  os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    tf_rand.set_seed(seed)
+    set_random_seed(seed)
+    random.seed(seed)
+    os.environ["TF_DETERMINISTIC_OPS"] = "1"
+    os.environ["TF_CUDNN_DETERMINISM"] = "1"
+    os.environ["PYTHONHASHSEED"] = str(seed)
+
 
 def adjustData(img, mask, flag_multi_class, num_class):
     if flag_multi_class:
@@ -81,8 +83,8 @@ def trainGenerator(
     use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
     if you want to visualize the results of generator, set save_to_dir = "your path"
     """
-    image_datagen = ImageDataGenerator(**aug_dict,shuffle=False)
-    mask_datagen = ImageDataGenerator(**aug_dict,shuffle=False)
+    image_datagen = ImageDataGenerator(**aug_dict)
+    mask_datagen = ImageDataGenerator(**aug_dict)
     enable_op_determinism()
     set_seed(seed)
     image_generator = image_datagen.flow_from_directory(
@@ -95,7 +97,7 @@ def trainGenerator(
         save_to_dir=save_to_dir,
         save_prefix=image_save_prefix,
         seed=seed,
-        
+        shuffle=False,
     )
     print(np.random.random())
     set_seed(seed)
@@ -109,10 +111,11 @@ def trainGenerator(
         save_to_dir=save_to_dir,
         save_prefix=mask_save_prefix,
         seed=seed,
+        shuffle=False,
     )
     print(np.random.random())
     train_generator = zip(image_generator, mask_generator)
-    
+
     for img, mask in train_generator:
         img, mask = adjustData(img, mask, flag_multi_class, num_class)
         yield (img, mask)
