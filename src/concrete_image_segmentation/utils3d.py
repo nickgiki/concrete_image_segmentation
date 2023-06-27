@@ -197,7 +197,7 @@ def train_test_split(
                 move(f, f"{cwd}/drop/{'label' if mask_kwd in f else 'images'}")
             else:
                 move(f, f"{cwd}/test/{'label' if mask_kwd in f else 'images'}")
-        for d in ['train','drop','test']:
+        for d in ["train", "drop", "test"]:
             for f in os.listdir(f"{cwd}/{d}/label"):
                 if f.endswith(".png"):
                     os.rename(
@@ -210,22 +210,34 @@ def train_test_split(
     finally:
         os.chdir(cwd)
 
-    def shuffle_names(dir_name,seed=1):
+    def shuffle_names(dir_name, seed=1):
         cwd = os.getcwd()
         try:
             os.chdir(dir_name)
-            fnames = [f"{d}/{sd}/{o}" for d in ['test','train','drop'] for sd in ['label'] for o in os.listdir(f"{d}/{sd}") if o.endswith('.png')]
+            fnames = [
+                f"{d}/{sd}/{o}"
+                for d in ["test", "train", "drop"]
+                for sd in ["label"]
+                for o in os.listdir(f"{d}/{sd}")
+                if o.endswith(".png")
+            ]
             print("found ", len(fnames), " pngs")
-            dict_name = list(zip([str(x).rjust(5,'0')+'.png' for x in np.random.permutation(len(fnames))],fnames))
-            for new,old in dict_name:
-                os.rename(old,'/'.join(old.split('/')[:-1] + [new]))
-                old2 = old.replace('label','images')
-                os.rename(old2,'/'.join(old2.split('/')[:-1] + [new]))
-            with open("rename_dict.json","w+") as f:
-                json.dump(dict_name,f,indent=6)
+            dict_name = list(
+                zip(
+                    [
+                        str(x).rjust(5, "0") + ".png"
+                        for x in np.random.permutation(len(fnames))
+                    ],
+                    fnames,
+                )
+            )
+            for new, old in dict_name:
+                os.rename(old, "/".join(old.split("/")[:-1] + [new]))
+                old2 = old.replace("label", "images")
+                os.rename(old2, "/".join(old2.split("/")[:-1] + [new]))
+            with open("rename_dict.json", "w+") as f:
+                json.dump(dict_name, f, indent=6)
         except Exception as e:
             print(e)
-        finally:    
+        finally:
             os.chdir(cwd)
-        
-    
