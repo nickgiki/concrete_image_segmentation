@@ -95,6 +95,7 @@ def trainGenerator(
         seed=seed,
         
     )
+    print(np.random.random())
     set_seed(seed)
     mask_generator = mask_datagen.flow_from_directory(
         train_path,
@@ -107,6 +108,7 @@ def trainGenerator(
         save_prefix=mask_save_prefix,
         seed=seed,
     )
+    print(np.random.random())
     train_generator = zip(image_generator, mask_generator)
     
     for img, mask in train_generator:
