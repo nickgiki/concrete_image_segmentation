@@ -75,7 +75,6 @@ def trainGenerator(
     num_class=2,
     save_to_dir=None,
     target_size=(512, 512),
-    seed=None,
 ):
     """
     can generate image and mask at the same time
@@ -85,7 +84,6 @@ def trainGenerator(
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
     seed_ = np.random.randint(0,9999)
-    # set_seed(seed_)
     image_generator = image_datagen.flow_from_directory(
         train_path,
         classes=[image_folder],
@@ -95,7 +93,7 @@ def trainGenerator(
         batch_size=batch_size,
         save_to_dir=save_to_dir,
         save_prefix=image_save_prefix,
-        seed=seed,
+        seed=seed_,
         shuffle=False,
     )
     # set_seed(seed_)
@@ -108,7 +106,7 @@ def trainGenerator(
         batch_size=batch_size,
         save_to_dir=save_to_dir,
         save_prefix=mask_save_prefix,
-        seed=seed,
+        seed=seed_,
         shuffle=False,
     )
     train_generator = zip(image_generator, mask_generator)
