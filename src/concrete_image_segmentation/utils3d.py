@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from itertools import product
-from shutil import move
+from shutil import move, make_archive
 
 
 def extract_zip(zip_file_path):
@@ -21,8 +21,8 @@ def extract_zip(zip_file_path):
 
 def make_zip(dir_names, master_dir_name, zip_name):
     for dir_ in dir_names:
-        shutil.move(dir_, f"{master_dir_name}/{dir_}")
-    shutil.make_archive(zip_name, "zip", master_dir_name)
+        move(dir_, f"{master_dir_name}/{dir_}")
+    make_archive(zip_name, "zip", master_dir_name)
 
 
 def get_dimensions(filename):
@@ -123,7 +123,7 @@ def nineths(image, overlap=0.05):
     )
 
 
-def cut_and_save(filepath, output_size=(572, 572), crop=0, cut="quad", eight_bit=True):
+def cut_and_save(filepath, output_size=(512, 512), crop=0, cut="quad", eight_bit=True):
     """Gets a raw 3D image file path and saves to new dir"""
     im_ar = read_raw(filepath)
 
@@ -198,12 +198,13 @@ def train_test_split(
                 move(f, f"{cwd}/test/{'label' if mask_kwd in f else 'images'}")
         for f in os.listdir(f"{cwd}/train/label"):
             if f.endswith(".png"):
+                print(f)
                 os.rename(
                     f"{cwd}/train/label/{f}",
                     f"{cwd}/train/label/{f}".replace("-Mask", ""),
                 )
-                assert f"{cwd}/train/label/{f}".replace("-Mask", "") in os.listdir(
-                    f"{cwd}/train/image"
+                assert f.replace("-Mask", "") in os.listdir(
+                    f"{cwd}/train/images"
                 )
     except Exception as e:
         print(f"An error has occured:\n- {e}")
