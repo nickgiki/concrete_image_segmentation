@@ -1,6 +1,7 @@
 from __future__ import print_function
 from tensorflow import random as tf_rand
 from tensorflow.keras.utils import set_random_seed
+from tensorflow.config.experimental import enable_op_determinism
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import random
 import numpy as np
@@ -82,6 +83,7 @@ def trainGenerator(
     """
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
+    enable_op_determinism()
     set_seed(seed)
     image_generator = image_datagen.flow_from_directory(
         train_path,
