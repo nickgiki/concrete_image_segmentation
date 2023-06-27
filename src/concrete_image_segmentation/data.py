@@ -1,4 +1,5 @@
 from __future__ import print_function
+from tensorflow import random as tf_rand
 from keras.utils import set_random_seed
 from keras.preprocessing.image import ImageDataGenerator
 import random
@@ -19,6 +20,14 @@ COLOR_DICT = np.array(
     ]
 )
 
+def set_seed(seed=0):
+  np.random.seed(seed) 
+  tf_rand.set_seed(seed) 
+  set_random_seed(seed)
+  random.seed(seed)
+  os.environ['TF_DETERMINISTIC_OPS'] = "1"
+  os.environ['TF_CUDNN_DETERMINISM'] = "1"
+  os.environ['PYTHONHASHSEED'] = str(seed)
 
 def adjustData(img, mask, flag_multi_class, num_class):
     if flag_multi_class:
@@ -73,9 +82,7 @@ def trainGenerator(
     """
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
-    set_random_seed(seed)
-    np.random.seed(seed)
-    random.seed(seed)
+    set_seed(seed)
     image_generator = image_datagen.flow_from_directory(
         train_path,
         classes=[image_folder],
@@ -88,9 +95,7 @@ def trainGenerator(
         seed=seed,
         
     )
-    set_random_seed(seed)
-    np.random.seed(seed)
-    random.seed(seed)
+    set_seed(seed)
     mask_generator = mask_datagen.flow_from_directory(
         train_path,
         classes=[mask_folder],
