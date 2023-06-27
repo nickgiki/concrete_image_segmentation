@@ -6,7 +6,7 @@ import glob
 import skimage.io as io
 import skimage.transform as trans
 
-Pumice = [128, 0, 0 ]
+Pumice = [128, 0, 0]
 
 Unlabelled = [0, 0, 0]
 

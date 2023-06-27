@@ -4,6 +4,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+from itertools import product
 from shutil import move
 
 
@@ -154,7 +155,9 @@ def cut_and_save(filepath, output_size=(572, 572), crop=0, cut="quad", eight_bit
             cv2.imwrite(fname, im_)
 
 
-def train_test_split(folder_path, train_p=0.75, drop_p=0.05, test_p=0.2):
+def train_test_split(
+    folder_path, train_p=0.75, drop_p=0.05, test_p=0.2, mask_kwd="Mask"
+):
     """
     Gets a folder path with names generated from
     cut_and_save and splits to train, drop and test
@@ -163,9 +166,10 @@ def train_test_split(folder_path, train_p=0.75, drop_p=0.05, test_p=0.2):
     try:
         assert train_p + drop_p + test_p == 1, "percentages must add up to 1"
         os.chdir(folder_path)
-        os.makedirs(f"{cwd}/train", exist_ok=1)
-        os.makedirs(f"{cwd}/drop", exist_ok=1)
-        os.makedirs(f"{cwd}/test", exist_ok=1)
+
+        for s1, s2 in product(["train", "test", "drop"], ["images", "label"]):
+            os.makedirs(f"{cwd}/{s1}", exist_ok=1)
+            os.makedirs(f"{cwd}/{s1}/{s2}", exist_ok=1)
 
         indices = [
             (f, int(re.findall(r"\d{4}_\d{2}.png", f)[0].split("_")[0]))
@@ -181,11 +185,11 @@ def train_test_split(folder_path, train_p=0.75, drop_p=0.05, test_p=0.2):
 
         for f, i in indices:
             if i < train_cutoff:
-                move(f, f"{cwd}/train")
+                move(f, f"{cwd}/train/{'label' if mask_kwd in f else 'images'}")
             elif i < test_cutoff:
-                move(f, f"{cwd}/drop")
+                move(f, f"{cwd}/drop/{'label' if mask_kwd in f else 'images'}")
             else:
-                move(f, f"{cwd}/test")
+                move(f, f"{cwd}/test/{'label' if mask_kwd in f else 'images'}")
     except Exception as e:
         print(f"An error has occured:\n- {e}")
     finally:
