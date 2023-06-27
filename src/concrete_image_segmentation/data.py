@@ -81,8 +81,8 @@ def trainGenerator(
     use the same seed for image_datagen and mask_datagen to ensure the transformation for image and mask is the same
     if you want to visualize the results of generator, set save_to_dir = "your path"
     """
-    image_datagen = ImageDataGenerator(**aug_dict)
-    mask_datagen = ImageDataGenerator(**aug_dict)
+    image_datagen = ImageDataGenerator(**aug_dict,shuffle=False)
+    mask_datagen = ImageDataGenerator(**aug_dict,shuffle=False)
     enable_op_determinism()
     set_seed(seed)
     image_generator = image_datagen.flow_from_directory(
