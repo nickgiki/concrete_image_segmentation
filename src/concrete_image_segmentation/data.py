@@ -1,7 +1,7 @@
 from __future__ import print_function
 from tensorflow import random as tf_rand
-from keras.utils import set_random_seed
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.utils import set_random_seed
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import random
 import numpy as np
 import os
