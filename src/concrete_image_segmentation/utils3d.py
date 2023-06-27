@@ -163,9 +163,9 @@ def train_test_split(folder_path, train_p=0.75, drop_p=0.05, test_p=0.2):
     try:
         assert train_p + drop_p + test_p == 1, "percentages must add up to 1"
         os.chdir(folder_path)
-        os.makedirs("train", exist_ok=1)
-        os.makedirs("drop", exist_ok=1)
-        os.makedirs("test", exist_ok=1)
+        os.makedirs(f"{cwd}/train", exist_ok=1)
+        os.makedirs(f"{cwd}/drop", exist_ok=1)
+        os.makedirs(f"{cwd}/test", exist_ok=1)
 
         indices = [
             (f, int(re.findall(r"\d{4}_\d{2}.png", f)[0].split("_")[0]))
@@ -181,11 +181,11 @@ def train_test_split(folder_path, train_p=0.75, drop_p=0.05, test_p=0.2):
 
         for f, i in indices:
             if i < train_cutoff:
-                move(f, "train")
+                move(f, f"{cwd}/train")
             elif i < test_cutoff:
-                move(f, "drop")
+                move(f, f"{cwd}/drop")
             else:
-                move(f, "test")
+                move(f, f"{cwd}/test")
     except Exception as e:
         print(f"An error has occured:\n- {e}")
     finally:
