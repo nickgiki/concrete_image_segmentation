@@ -18,6 +18,10 @@ def extract_zip(zip_file_path):
         zip.extractall()
         print("Done!")
 
+def make_zip(dir_names,master_dir_name, zip_name):
+    for dir_ in dir_names:
+        shutil.move(dir_,f"{master_dir_name}/{dir_}")
+    shutil.make_archive(zip_name, 'zip', master_dir_name)
 
 def get_dimensions(filename):
     """Returns the dimensions of the raw picture from the filename"""
