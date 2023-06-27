@@ -84,6 +84,7 @@ def trainGenerator(
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
     seed_ = np.random.randint(0,9999)
+    set_seed(seed_)
     image_generator = image_datagen.flow_from_directory(
         train_path,
         classes=[image_folder],
@@ -94,9 +95,9 @@ def trainGenerator(
         save_to_dir=save_to_dir,
         save_prefix=image_save_prefix,
         seed=seed_,
-        shuffle=False,
+        shuffle=True,
     )
-    # set_seed(seed_)
+    set_seed(seed_)
     mask_generator = mask_datagen.flow_from_directory(
         train_path,
         classes=[mask_folder],
@@ -107,7 +108,7 @@ def trainGenerator(
         save_to_dir=save_to_dir,
         save_prefix=mask_save_prefix,
         seed=seed_,
-        shuffle=False,
+        shuffle=True,
     )
     train_generator = zip(image_generator, mask_generator)
 
