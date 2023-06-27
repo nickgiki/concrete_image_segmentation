@@ -7,25 +7,26 @@ data_gen_args = dict(
     rotation_range=0.2,
     width_shift_range=0.05,
     height_shift_range=0.05,
+    #brightness_range = (.9,1.1),
     shear_range=0.05,
     zoom_range=0.05,
     horizontal_flip=True,
     vertical_flip=True,
-    fill_mode="nearest",
+    fill_mode="reflect",
 )
+BATCH_SIZE = 16
 
 train_gen = trainGenerator(
-    2,
+    BATCH_SIZE,
     "train",
     "images",
     "label",
     data_gen_args,
     save_to_dir=None,
-    seed=int(input("set seed\n")),
 )
 
 i = 0
-while i < 3:
+while i < 5:
     try:
         x, y = train_gen.__next__()
 
