@@ -1,5 +1,7 @@
 from __future__ import print_function
+from keras.utils import set_random_seed
 from keras.preprocessing.image import ImageDataGenerator
+import random
 import numpy as np
 import os
 import glob
@@ -71,6 +73,9 @@ def trainGenerator(
     """
     image_datagen = ImageDataGenerator(**aug_dict)
     mask_datagen = ImageDataGenerator(**aug_dict)
+    set_random_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
     image_generator = image_datagen.flow_from_directory(
         train_path,
         classes=[image_folder],
@@ -81,7 +86,11 @@ def trainGenerator(
         save_to_dir=save_to_dir,
         save_prefix=image_save_prefix,
         seed=seed,
+        
     )
+    set_random_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
     mask_generator = mask_datagen.flow_from_directory(
         train_path,
         classes=[mask_folder],
@@ -94,6 +103,7 @@ def trainGenerator(
         seed=seed,
     )
     train_generator = zip(image_generator, mask_generator)
+    
     for img, mask in train_generator:
         img, mask = adjustData(img, mask, flag_multi_class, num_class)
         yield (img, mask)
