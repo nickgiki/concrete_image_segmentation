@@ -96,7 +96,7 @@ def trainGenerator(
         seed=seed_,
         shuffle=True,
     )
-    
+
     mask_generator = mask_datagen.flow_from_directory(
         train_path,
         classes=[mask_folder],
