@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import cv2
 from itertools import product
 from shutil import move, make_archive
+from tqdm import tqdm
+import skimage.io as io
 
 
 def extract_zip(zip_file_path):
@@ -124,7 +126,9 @@ def nineths(image, overlap=0.05):
     )
 
 
-def cut_and_save(filepath, output_size=(512, 512), crop=0, cut="quad", eight_bit=True):
+def cut_and_save(
+    filepath, output_size=(512, 512), crop=0, overlap=0.05, cut="quad", eight_bit=True
+):
     """Gets a raw 3D image file path and saves to new dir"""
     im_ar = read_raw(filepath)
 
@@ -138,12 +142,14 @@ def cut_and_save(filepath, output_size=(512, 512), crop=0, cut="quad", eight_bit
             slice_ = crop_image(slice_.copy(), px=crop)
 
         if cut == "quad":
-            qd_dict = dict(zip(["00", "01", "10", "11"], quadrants(slice_)))
+            qd_dict = dict(
+                zip(["00", "01", "10", "11"], quadrants(slice_, overlap=overlap))
+            )
         elif cut == "nine":
             qd_dict = dict(
                 zip(
                     ["00", "01", "02", "10", "11", "12", "20", "21", "22"],
-                    nineths(slice_),
+                    nineths(slice_, overlap=overlap),
                 )
             )
         else:
@@ -151,7 +157,7 @@ def cut_and_save(filepath, output_size=(512, 512), crop=0, cut="quad", eight_bit
                 f'{cut} is not valid for cut. Must be one of ["quad","nine"].'
             )
 
-        for nm, im in qd_dict.items():
+        for nm, im in tqdm(qd_dict.items()):
             im_ = convert_to_float(im)
             if output_size:
                 im_ = cv2.resize(im_, output_size, interpolation=cv2.INTER_AREA)
@@ -163,7 +169,11 @@ def cut_and_save(filepath, output_size=(512, 512), crop=0, cut="quad", eight_bit
 
 
 def train_test_split(
-    folder_path, train_p=0.75, drop_p=0.05, test_p=0.2, mask_kwd="Mask"
+    folder_path,
+    train_p=0.75,
+    drop_p=0.05,
+    test_p=0.2,
+    mask_kwd="Mask",
 ):
     """
     Gets a folder path with names generated from
@@ -210,34 +220,79 @@ def train_test_split(
     finally:
         os.chdir(cwd)
 
-    def shuffle_names(dir_name, seed=1):
-        cwd = os.getcwd()
-        try:
-            os.chdir(dir_name)
-            fnames = [
-                f"{d}/{sd}/{o}"
-                for d in ["test", "train", "drop"]
-                for sd in ["label"]
-                for o in os.listdir(f"{d}/{sd}")
-                if o.endswith(".png")
-            ]
-            print("found ", len(fnames), " pngs")
-            dict_name = list(
-                zip(
-                    [
-                        str(x).rjust(5, "0") + ".png"
-                        for x in np.random.permutation(len(fnames))
-                    ],
-                    fnames,
-                )
+
+def shuffle_names(dir_name, seed=1):
+    cwd = os.getcwd()
+    try:
+        os.chdir(dir_name)
+        fnames = [
+            f"{d}/{sd}/{o}"
+            for d in ["test", "train", "drop"]
+            for sd in ["label"]
+            for o in os.listdir(f"{d}/{sd}")
+            if o.endswith(".png")
+        ]
+        print("found ", len(fnames), " pngs")
+        dict_name = list(
+            zip(
+                [
+                    str(x).rjust(5, "0") + ".png"
+                    for x in np.random.permutation(len(fnames))
+                ],
+                fnames,
             )
-            for new, old in dict_name:
-                os.rename(old, "/".join(old.split("/")[:-1] + [new]))
-                old2 = old.replace("label", "images")
-                os.rename(old2, "/".join(old2.split("/")[:-1] + [new]))
-            with open("rename_dict.json", "w+") as f:
-                json.dump(dict_name, f, indent=6)
-        except Exception as e:
-            print(e)
-        finally:
-            os.chdir(cwd)
+        )
+        for new, old in dict_name:
+            os.rename(old, "/".join(old.split("/")[:-1] + [new]))
+            old2 = old.replace("label", "images")
+            os.rename(old2, "/".join(old2.split("/")[:-1] + [new]))
+        with open("rename_dict.json", "w+") as f:
+            json.dump(dict_name, f, indent=6)
+    except Exception as e:
+        print(e)
+    finally:
+        os.chdir(cwd)
+
+
+def image_preproc(x):
+    x_ = x.copy()
+    x_ /= 255
+    x_ = np.reshape(x_, x_.shape + (1,))
+    x_ = np.reshape(x_, (1,) + x_.shape)
+    return x_
+
+
+def predict_mod(model, x):
+    x = image_preproc(x)
+    y = model.predict(x)
+    y[y > thresh] = 1
+    y[y <= thresh] = 0
+    return y
+
+
+def predict_from_path(model_path, x_paths, save_dir=None, thresh=0.5):
+    assert os.path.isfile(model_path), "Model not found"
+    model = tf.keras.model.load_model(model_path)
+
+    if isinstance(x_paths, list):
+        y_h = []
+        for xp in xpaths:
+            try:
+                x = io.imread(xp)
+                y = predict_mod(model, x)
+                if save_dir:
+                    io.imsave(f"{save_dir}/{xp}", y)
+                else:
+                    y_h += [y]
+            except Exception as e:
+                print(f"Could not process {xp}")
+        return y_h
+    elif os.path.isfile(x_paths) and xpaths.endswith(".png"):
+        x = io.imread(x_paths)
+        y = predict_mod(model, x)
+        if save_dir:
+            io.imsave(f"{save_dir}/{x_paths}", y)
+        else:
+            return y
+    else:
+        raise TypeError(f"{x_paths} not a list of file paths or a file path")
