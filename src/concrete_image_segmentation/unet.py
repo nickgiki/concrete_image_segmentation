@@ -110,8 +110,10 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False,
 
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
-        loss= [dice_coef_loss if use_jaccard else  "binary_crossentropy"],
-        metrics=['accuracy',dice_coef],
+        loss= ["binary_crossentropy"],
+        metrics=['accuracy'],
+        # loss= [dice_coef_loss if use_jaccard else  "binary_crossentropy"],
+        # metrics=['accuracy',dice_coef],
     )
 
     # model.summary()
