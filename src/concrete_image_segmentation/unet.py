@@ -14,7 +14,7 @@ def jaccard(y,y_hat):
     y_f = keras.flatten(y)
     y_hat_f = keras.flatten(y_hat)
     intersection = keras.sum(y_f * y_hat_f)
-    return (intersection + 1.0)/(kears.sum(y_f) + kears.sum(y_hat) - intersection + 1.0)
+    return (intersection + 1.0)/(keras.sum(y_f) + keras.sum(y_hat) - intersection + 1.0)
 
 def jaccard_loss(y,y_hat):
     """Jaccard loss for minimization"""
