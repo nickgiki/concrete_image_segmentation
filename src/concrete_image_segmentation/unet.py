@@ -9,18 +9,14 @@ from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras import backend as keras
 
-def jaccard(y_true, y_pred, smooth=5):
-    """Jaccard similarity score"""
-    intersection = keras.sum(keras.abs(y_true * y_pred), axis=-1)
-    sum_ = keras.sum(keras.abs(y_true) + keras.abs(y_pred), axis=-1)
-    return (intersection + smooth) / (sum_ - intersection + smooth)
+def dice_coef(y_true, y_pred):
+  y_true_f = keras.flatten(y_true)
+  y_pred_f = keras.flatten(y_pred)
+  intersection = keras.sum(y_true_f * y_pred_f)
+  return (2. * intersection + 0.0001) / (keras.sum(y_true_f) + keras.sum(y_pred_f) + 0.0001)
 
-def jaccard_loss(y_true, y_pred, smooth=5):
-    """Jaccard loss for minimization"""
-    intersection = keras.sum(keras.abs(y_true * y_pred), axis=-1)
-    sum_ = keras.sum(keras.abs(y_true) + keras.abs(y_pred), axis=-1)
-    jac = (intersection + smooth) / (sum_ - intersection + smooth)
-    return (1-jac) * smooth
+def dice_coef_loss(y_true, y_pred):
+  return 1 - dice_coef(y_true, y_pred)
 
 def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False, learning_rate=0.0001):
     inputs = Input(input_size)
@@ -114,8 +110,8 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False,
 
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
-        loss= jaccard_loss if use_jaccard else  "binary_crossentropy",
-        metrics=['accuracy'] if use_jaccard else ['accuracy',jaccard],
+        loss= [dice_coef_loss if use_jaccard else  "binary_crossentropy"],
+        metrics=['accuracy',dice_coef],
     )
 
     # model.summary()
