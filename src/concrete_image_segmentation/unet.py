@@ -11,10 +11,8 @@ from tensorflow.keras import backend as keras
 
 def jaccard(y,y_hat):
     """Jaccard similarity score"""
-    y_f = keras.flatten(y)
-    y_hat_f = keras.flatten(y_hat)
-    intersection = keras.sum(y_f * y_hat_f)
-    return (intersection + 1.0)/(keras.sum(y_f) + keras.sum(y_hat) - intersection + 1.0)
+    intersection = keras.sum(y * y_hat)
+    return (intersection + 1.0)/(keras.sum(y) + keras.sum(y_hat) - intersection + 1.0)
 
 def jaccard_loss(y,y_hat):
     """Jaccard loss for minimization"""
