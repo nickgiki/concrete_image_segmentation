@@ -9,16 +9,18 @@ from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras import backend as keras
 
-def jaccard_loss(y_true, y_pred, smooth=5):
-    """Jaccard similarity score"""
-    return (1-jaccard_loss(y_true, y_pred, smooth=smooth))
-
 def jaccard(y_true, y_pred, smooth=5):
+    """Jaccard similarity score"""
+    intersection = keras.sum(keras.abs(y_true * y_pred), axis=-1)
+    sum_ = keras.sum(keras.abs(y_true) + keras.abs(y_pred), axis=-1)
+    return (intersection + smooth) / (sum_ - intersection + smooth)
+
+def jaccard_loss(y_true, y_pred, smooth=5):
     """Jaccard loss for minimization"""
     intersection = keras.sum(keras.abs(y_true * y_pred), axis=-1)
     sum_ = keras.sum(keras.abs(y_true) + keras.abs(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
-    return jac * smooth
+    return (1-jac) * smooth
 
 def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False, learning_rate=0.0001):
     inputs = Input(input_size)
