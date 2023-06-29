@@ -9,18 +9,18 @@ from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras import backend as keras
 
-def jaccard(y_true, y_pred, smooth=100):
+def jaccard_loss(y_true, y_pred, smooth=5):
     """Jaccard similarity score"""
-    return -jaccard_loss(y_true, y_pred, smooth=smooth)
+    return (1-jaccard_loss(y_true, y_pred, smooth=smooth))
 
-def jaccard_loss(y_true, y_pred, smooth=100):
+def jaccard(y_true, y_pred, smooth=5):
     """Jaccard loss for minimization"""
     intersection = keras.sum(keras.abs(y_true * y_pred), axis=-1)
     sum_ = keras.sum(keras.abs(y_true) + keras.abs(y_pred), axis=-1)
     jac = (intersection + smooth) / (sum_ - intersection + smooth)
-    return (1 - jac) * smooth
+    return jac * smooth
 
-def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False):
+def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False, learning_rate=0.0001):
     inputs = Input(input_size)
     conv1 = Conv2D(
         64, 3, activation="relu", padding="same", kernel_initializer="he_normal"
@@ -111,7 +111,7 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False)
     model = Model(inputs=inputs, outputs=conv10)
 
     model.compile(
-        optimizer=Adam(learning_rate=1e-4),
+        optimizer=Adam(learning_rate=learning_rate),
         loss= jaccard_loss if use_jaccard else  "binary_crossentropy",
         metrics=['accuracy',jaccard],
     )
