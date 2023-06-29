@@ -110,7 +110,7 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False)
 
     model.compile(
         optimizer=Adam(learning_rate=1e-4),
-        loss= jaccard_loss  "binary_crossentropy",
+        loss= jaccard_loss if use_jaccard else  "binary_crossentropy",
         metrics=[jaccard if use_jaccard else 'accuracy'],
     )
 
