@@ -9,8 +9,18 @@ from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from tensorflow.keras import backend as keras
 
+def jaccard(y,y_hat):
+    """Jaccard similarity score"""
+    y_f = keras.flatten(y)
+    y_hat_f = keras.flatten(y_hat)
+    intersection = keras.sum(y_f * y_hat_f)
+    return (intersection + 1.0)/(kears.sum(y_f) + kears.sum(y_hat) - intersection + 1.0)
 
-def unet(pretrained_weights=None, input_size=(512, 512, 1)):
+def jaccard_loss(y,y_hat):
+    """Jaccard loss for minimization"""
+        return -jaccard(y,y_hat)
+
+def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False):
     inputs = Input(input_size)
     conv1 = Conv2D(
         64, 3, activation="relu", padding="same", kernel_initializer="he_normal"
@@ -102,8 +112,8 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1)):
 
     model.compile(
         optimizer=Adam(learning_rate=1e-4),
-        loss="binary_crossentropy",
-        metrics=["accuracy"],
+        loss= [jaccard_loss if use_jaccard else "binary_crossentropy"],
+        metrics=["accuracy",jaccard],
     )
 
     # model.summary()
