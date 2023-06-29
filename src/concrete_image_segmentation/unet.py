@@ -64,7 +64,7 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False,
 
     up6 = Conv2D(
         512, 2, activation="relu", padding="same", kernel_initializer="he_normal"
-    )(UpSampling2D(size=(2, 2))(drop5))
+    )(UpSampling2D(size=(2, 2),interpolation='bilinear')(drop5))
     merge6 = concatenate([drop4, up6], axis=3)
     conv6 = Conv2D(
         512, 3, activation="relu", padding="same", kernel_initializer="he_normal"
@@ -75,7 +75,7 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False,
 
     up7 = Conv2D(
         256, 2, activation="relu", padding="same", kernel_initializer="he_normal"
-    )(UpSampling2D(size=(2, 2))(conv6))
+    )(UpSampling2D(size=(2, 2),interpolation='bilinear')(conv6))
     merge7 = concatenate([conv3, up7], axis=3)
     conv7 = Conv2D(
         256, 3, activation="relu", padding="same", kernel_initializer="he_normal"
@@ -86,7 +86,7 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False,
 
     up8 = Conv2D(
         128, 2, activation="relu", padding="same", kernel_initializer="he_normal"
-    )(UpSampling2D(size=(2, 2))(conv7))
+    )(UpSampling2D(size=(2, 2),interpolation='bilinear')(conv7))
     merge8 = concatenate([conv2, up8], axis=3)
     conv8 = Conv2D(
         128, 3, activation="relu", padding="same", kernel_initializer="he_normal"
@@ -97,7 +97,7 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False,
 
     up9 = Conv2D(
         64, 2, activation="relu", padding="same", kernel_initializer="he_normal"
-    )(UpSampling2D(size=(2, 2))(conv8))
+    )(UpSampling2D(size=(2, 2),interpolation='bilinear')(conv8))
     merge9 = concatenate([conv1, up9], axis=3)
     conv9 = Conv2D(
         64, 3, activation="relu", padding="same", kernel_initializer="he_normal"
@@ -115,7 +115,7 @@ def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False,
     model.compile(
         optimizer=Adam(learning_rate=learning_rate),
         loss= jaccard_loss if use_jaccard else  "binary_crossentropy",
-        metrics=['accuracy',jaccard],
+        metrics=['accuracy'] if use_jaccard else ['accuracy',jaccard],
     )
 
     # model.summary()
