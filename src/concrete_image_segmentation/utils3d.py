@@ -9,6 +9,8 @@ from itertools import product
 from shutil import move, make_archive
 from tqdm import tqdm
 import skimage.io as io
+import tensorflow as tf
+
 
 
 def extract_zip(zip_file_path):
@@ -256,42 +258,46 @@ def shuffle_names(dir_name, seed=1):
 
 def image_preproc(x):
     x_ = x.copy()
-    x_ /= 255
     x_ = np.reshape(x_, x_.shape + (1,))
     x_ = np.reshape(x_, (1,) + x_.shape)
     return x_
 
 
-def predict_mod(model, x):
+def predict_mod(model, x,thresh=.5):
     x = image_preproc(x)
     y = model.predict(x)
     y[y > thresh] = 1
     y[y <= thresh] = 0
+    y = y.astype(int)
     return y
 
 
-def predict_from_path(model_path, x_paths, save_dir=None, thresh=0.5):
+def predict_from_path(model_path, x_paths, save_dir=None, thresh=.5):
     assert os.path.isfile(model_path), "Model not found"
-    model = tf.keras.model.load_model(model_path)
+    model = tf.keras.models.load_model(model_path)
 
     if isinstance(x_paths, list):
         y_h = []
-        for xp in xpaths:
+        if save_dir:
+            os.makedirs(save_dir, exist_ok=True)
+        for xp in tqdm(x_paths):
+            if (not os.path.isfile(xp)) or (os.path.split(xp)[1] in os.listdir(save_dir)):
+                continue
             try:
-                x = io.imread(xp)
-                y = predict_mod(model, x)
+                x = io.imread(xp, as_gray=True)/255
+                y = predict_mod(model, x, thresh)*255
                 if save_dir:
-                    io.imsave(f"{save_dir}/{xp}", y)
+                    cv2.imwrite(f"{save_dir}/{os.path.split(xp)[1]}", y[0,:,:,0])
                 else:
                     y_h += [y]
             except Exception as e:
-                print(f"Could not process {xp}")
+                print(f"Could not process {xp} due to:\n\n- {e}")
         return y_h
     elif os.path.isfile(x_paths) and xpaths.endswith(".png"):
         x = io.imread(x_paths)
         y = predict_mod(model, x)
         if save_dir:
-            io.imsave(f"{save_dir}/{x_paths}", y)
+            io.imsave(f"{save_dir}/{os.path.split(x_paths)[1]}", y[0,:,:,0])
         else:
             return y
     else:
