@@ -115,6 +115,7 @@ def trainGenerator(
         img, mask = adjustData(img, mask, flag_multi_class, num_class)
         yield (img, mask)
 
+
 def geneTrainNpy(
     image_path,
     mask_path,

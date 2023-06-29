@@ -12,7 +12,6 @@ import skimage.io as io
 import tensorflow as tf
 
 
-
 def extract_zip(zip_file_path):
     from zipfile import ZipFile
 
@@ -263,7 +262,7 @@ def image_preproc(x):
     return x_
 
 
-def predict_mod(model, x,thresh=.5):
+def predict_mod(model, x, thresh=0.5):
     x = image_preproc(x)
     y = model.predict(x)
     y[y > thresh] = 1
@@ -272,7 +271,7 @@ def predict_mod(model, x,thresh=.5):
     return y
 
 
-def predict_from_path(model_path, x_paths, save_dir=None, thresh=.5):
+def predict_from_path(model_path, x_paths, save_dir=None, thresh=0.5):
     assert os.path.isfile(model_path), "Model not found"
     model = tf.keras.models.load_model(model_path)
 
@@ -281,13 +280,15 @@ def predict_from_path(model_path, x_paths, save_dir=None, thresh=.5):
         if save_dir:
             os.makedirs(save_dir, exist_ok=True)
         for xp in tqdm(x_paths):
-            if (not os.path.isfile(xp)) or (os.path.split(xp)[1] in os.listdir(save_dir)):
+            if (not os.path.isfile(xp)) or (
+                os.path.split(xp)[1] in os.listdir(save_dir)
+            ):
                 continue
             try:
-                x = io.imread(xp, as_gray=True)/255
-                y = predict_mod(model, x, thresh)*255
+                x = io.imread(xp, as_gray=True) / 255
+                y = predict_mod(model, x, thresh) * 255
                 if save_dir:
-                    cv2.imwrite(f"{save_dir}/{os.path.split(xp)[1]}", y[0,:,:,0])
+                    cv2.imwrite(f"{save_dir}/{os.path.split(xp)[1]}", y[0, :, :, 0])
                 else:
                     y_h += [y]
             except Exception as e:
@@ -297,7 +298,7 @@ def predict_from_path(model_path, x_paths, save_dir=None, thresh=.5):
         x = io.imread(x_paths)
         y = predict_mod(model, x)
         if save_dir:
-            io.imsave(f"{save_dir}/{os.path.split(x_paths)[1]}", y[0,:,:,0])
+            io.imsave(f"{save_dir}/{os.path.split(x_paths)[1]}", y[0, :, :, 0])
         else:
             return y
     else:
