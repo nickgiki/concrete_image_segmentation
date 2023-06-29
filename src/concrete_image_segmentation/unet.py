@@ -26,7 +26,6 @@ def dice_coef_loss(y_true, y_pred):
 def unet(
     pretrained_weights=None,
     input_size=(512, 512, 1),
-    use_jaccard=False,
     learning_rate=0.0001,
 ):
     inputs = Input(input_size)
