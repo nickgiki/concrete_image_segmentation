@@ -18,7 +18,7 @@ def jaccard(y,y_hat):
 
 def jaccard_loss(y,y_hat):
     """Jaccard loss for minimization"""
-        return -jaccard(y,y_hat)
+    return -jaccard(y,y_hat)
 
 def unet(pretrained_weights=None, input_size=(512, 512, 1), use_jaccard = False):
     inputs = Input(input_size)
