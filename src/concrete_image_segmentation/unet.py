@@ -118,7 +118,7 @@ def unet(
     model = Model(inputs=inputs, outputs=conv10)
 
     model.compile(
-        optimizer=Adam(learning_rate=learning_rate,amsgrad=True),
+        optimizer=Adam(learning_rate=learning_rate, amsgrad=True),
         loss=["binary_crossentropy"],
         metrics=["accuracy"],
     )
