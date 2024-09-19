@@ -1,5 +1,5 @@
 # `concrete_image_segmentation`
-A package that uses the [UNET](https://paperswithcode.com/paper/u-net-convolutional-networks-for-biomedical) neural network architecture to segment 3D grayscale images of concrete samples.
+A package that uses the [U-Net](https://paperswithcode.com/paper/u-net-convolutional-networks-for-biomedical) neural network architecture to segment 3D grayscale images of concrete samples.
 
 ## Project Setup
 
