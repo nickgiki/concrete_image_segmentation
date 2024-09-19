@@ -45,3 +45,25 @@ Make sure you have the following tools installed on your system:
     pip install .
     ```
 
+### Usage
+
+If you have a `.raw` 3D image you need to first cut each cross-section (slice) into four quadrants. To do this, start a new python shell and run this:
+
+```python
+from concrete_image_segmentation.utils3d import cut_and_save
+
+MY_IMAGE_PATH = "my_image.raw"
+
+cut_and_save(MY_IMAGE_PATH, cut="quad", eight_bit=True, crop=100)
+```
+The cut images are now contained in a new folder named "my_image".
+To split the images randomly to train and test run:
+
+```python
+train_test_split("my_image")
+```
+This function creates three new subdirectories "train", "drop" and "test", each with two subdirs "images" and "label". The approach is, we train the model on first 75% of cross-sections, drop the next 5% of cross-sections and use the remaining 20% for prediction.
+
+For a more detailed data-preprocessing walkthrough check `notebooks/image_exploration.ipynb`.
+
+A full training notebook example on [Google Colab](https://colab.research.google.com/) can be found in `notebooks/ntua_concrete_samples_train.ipynb`. A prediction example can be found in `notebooks/ntua_concrete_samples_predict.ipynb`.
