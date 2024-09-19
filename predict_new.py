@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import pickle
 
+
 def overlay_mask(x, y, title=""):
     plt.imshow(x[0, :, :, 0], cmap="gray")
     plt.imshow(y[0, :, :, 0], cmap="jet", alpha=0.2)
@@ -13,7 +14,7 @@ def overlay_mask(x, y, title=""):
 
 
 # with open('../downloads/keras_model.pkl','rb') as f:
-    # model = pickle.load(f)
+# model = pickle.load(f)
 
 model = tf.keras.models.load_model("../downloads/weights/unet_concrete.hdf5")
 
