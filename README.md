@@ -101,8 +101,7 @@ Make sure you have the following tools installed on your system:
     ```
 
     This should output an image like this one:
-    ```markdown
-    ![ConcreteImage](./images/concrete_image.png)
-    ```
+
+    ![concrete_image](./images/concrete_image.png)
 
     A full prediction example can be found in `notebooks/ntua_concrete_samples_predict.ipynb`.
