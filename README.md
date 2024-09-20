@@ -33,6 +33,7 @@ Make sure you have the following tools installed on your system:
 
     After the installation is completed activate the new environment
 
+
     ```bash
     conda activate concrete_image_segmentation
     ```
