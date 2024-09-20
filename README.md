@@ -71,4 +71,38 @@ Make sure you have the following tools installed on your system:
 
 - **Running a training pipeline**
 
-    A full training notebook example on [Google Colab](https://colab.research.google.com/) can be found in `notebooks/ntua_concrete_samples_train.ipynb`. A prediction example can be found in `notebooks/ntua_concrete_samples_predict.ipynb`.
+    A full training notebook example on [Google Colab](https://colab.research.google.com/) can be found in `notebooks/ntua_concrete_samples_train.ipynb`.
+
+- **Predicting new images**
+    When you have trained and saved your model (i.e. in drive path `./downloads/my_model.hdf5`) you can load it by running the following in a python console:
+
+    ```python
+    import tensorflow as tf
+
+    model = tf.keras.models.load_model("./downloads/my_model.hdf5")
+    ```
+
+    Then you can predict a new image (say in path `./downloads/my_image.png`) running (in the same console):
+
+    ```python
+    import skimage.io as io
+    from concrete_image_segmentation.utils3d import predict_mod
+    import matplotlib.pyplot as plt
+
+    x = io.imread("./downloads/my_image.png", as_gray=True) / 255
+    prediction = predict_mod(model,x)
+
+    def overlay_mask2(x, y):
+        """Custom image that overlays the prediction on top of the original image"""
+        plt.imshow(x, cmap="gray")
+        plt.imshow(y, cmap="jet", alpha=0.2)
+
+    overlay_mask(x, prediction)
+    ```
+
+    This should output an image like this one:
+    ```markdown
+    ![ConcreteImage](./images/concrete_image.png)
+    ```
+
+    A full prediction example can be found in `notebooks/ntua_concrete_samples_predict.ipynb`.
