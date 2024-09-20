@@ -93,7 +93,7 @@ Make sure you have the following tools installed on your system:
     prediction = predict_mod(model,x)
 
     def overlay_mask2(x, y):
-        """Custom image that overlays the prediction on top of the original image"""
+        """Custom function that overlays the prediction on top of the original image"""
         plt.imshow(x, cmap="gray")
         plt.imshow(y, cmap="jet", alpha=0.2)
 
