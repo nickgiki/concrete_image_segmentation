@@ -67,11 +67,11 @@ Make sure you have the following tools installed on your system:
     ```
     This function creates three new subdirectories `"train"`, `"drop"` and `"test"`, each with two subdirs `"images"` and `"label"`. The approach is, we train the model on first 75% of cross-sections, drop the next 5% of cross-sections and use the remaining 20% for prediction.
 
-    For a more detailed data-preprocessing walkthrough check `notebooks/image_exploration.ipynb`.
+    For a more detailed data-preprocessing walkthrough check [notebooks/image_exploration.ipynb](notebooks/image_exploration.ipynb).
 
 - **Running a training pipeline**
 
-    A full training notebook example on [Google Colab](https://colab.research.google.com/) can be found in `notebooks/ntua_concrete_samples_train.ipynb`.
+    A full training notebook example on [Google Colab](https://colab.research.google.com/) can be found in [notebooks/ntua_concrete_samples_train.ipynb](notebooks/ntua_concrete_samples_train.ipynb).
 
 - **Predicting new images**
     When you have trained and saved your model (i.e. in drive path `./downloads/my_model.hdf5`) you can load it by running the following in a python console:
@@ -104,4 +104,4 @@ Make sure you have the following tools installed on your system:
 
     ![concrete_image](./images/concrete_image.png)
 
-    A full prediction example can be found in `notebooks/ntua_concrete_samples_predict.ipynb`.
+    A full prediction example can be found in [notebooks/ntua_concrete_samples_predict.ipynb](notebooks/ntua_concrete_samples_predict.ipynb).
