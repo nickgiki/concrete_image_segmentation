@@ -1,21 +1,22 @@
 """This module provides utility functions for 3D image processing"""
 
-import re
 import json
 import os
-import numpy as np
-import matplotlib.pyplot as plt
-import cv2
+import re
 from itertools import product
-from shutil import move, make_archive
-from tqdm import tqdm
+from shutil import make_archive, move
+from zipfile import ZipFile
+
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 import skimage.io as io
 import tensorflow as tf
+from tqdm import tqdm
 
 
 def extract_zip(zip_file_path):
-    from zipfile import ZipFile
-
+    """Extracts contents from a zip"""
     with ZipFile(zip_file_path, "r") as zip:
         # printing all the contents of the zip file
         zip.printdir()
@@ -25,6 +26,7 @@ def extract_zip(zip_file_path):
 
 
 def make_zip(dir_names, master_dir_name, zip_name):
+    """Zips various directories into a master folder and zips it"""
     for dir_ in dir_names:
         move(dir_, f"{master_dir_name}/{dir_}")
     make_archive(zip_name, "zip", master_dir_name)
@@ -32,9 +34,7 @@ def make_zip(dir_names, master_dir_name, zip_name):
 
 def get_dimensions(filename):
     """Returns the dimensions of the raw picture from the filename"""
-    return [
-        int(x) for x in re.sub(f"(.+)-(\d+x\d+x\d+)(.+)", "\\2", filename).split("x")
-    ]
+    return [int(x) for x in re.sub(f"(.+)-(\d+x\d+x\d+)(.+)", "\\2", filename).split("x")]
 
 
 def read_raw(filepath):
@@ -79,11 +79,7 @@ def plot_image(image, to_float=False):
     if len(image.shape) > 2:
         plt.imshow(1 - convert_to_float(image) if to_float else image)
     else:
-        plt.imshow(
-            cv2.cvtColor(
-                1 - convert_to_float(image) if to_float else image, cv2.COLOR_GRAY2RGB
-            )
-        )
+        plt.imshow(cv2.cvtColor(1 - convert_to_float(image) if to_float else image, cv2.COLOR_GRAY2RGB))
     plt.axis("off")
     plt.show()
 
@@ -128,9 +124,7 @@ def nineths(image, overlap=0.05):
     )
 
 
-def cut_and_save(
-    filepath, output_size=(512, 512), crop=0, overlap=0.05, cut="quad", eight_bit=True
-):
+def cut_and_save(filepath, output_size=(512, 512), crop=0, overlap=0.05, cut="quad", eight_bit=True):
     """Gets a raw 3D image file path and saves to new dir"""
     im_ar = read_raw(filepath)
 
@@ -144,9 +138,7 @@ def cut_and_save(
             slice_ = crop_image(slice_.copy(), px=crop)
 
         if cut == "quad":
-            qd_dict = dict(
-                zip(["00", "01", "10", "11"], quadrants(slice_, overlap=overlap))
-            )
+            qd_dict = dict(zip(["00", "01", "10", "11"], quadrants(slice_, overlap=overlap)))
         elif cut == "nine":
             qd_dict = dict(
                 zip(
@@ -155,17 +147,13 @@ def cut_and_save(
                 )
             )
         else:
-            raise ValueError(
-                f'{cut} is not valid for cut. Must be one of ["quad","nine"].'
-            )
+            raise ValueError(f'{cut} is not valid for cut. Must be one of ["quad","nine"].')
 
         for nm, im in tqdm(qd_dict.items()):
             im_ = convert_to_float(im)
             if output_size:
                 im_ = cv2.resize(im_, output_size, interpolation=cv2.INTER_AREA)
-            im_ = ((1 - im_) * (2 ** (8 if eight_bit else 16) - 1)).astype(
-                np.uint16 if not eight_bit else int
-            )
+            im_ = ((1 - im_) * (2 ** (8 if eight_bit else 16) - 1)).astype(np.uint16 if not eight_bit else int)
             fname = f"{dir_name}/{dir_name}_{str(i).rjust(4,'0')}_{nm}.png"
             cv2.imwrite(fname, im_)
 
@@ -191,16 +179,12 @@ def train_test_split(
             os.makedirs(f"{cwd}/{s1}/{s2}", exist_ok=1)
 
         indices = [
-            (f, int(re.findall(r"\d{4}_\d{2}.png", f)[0].split("_")[0]))
-            for f in os.listdir()
-            if f.endswith(".png")
+            (f, int(re.findall(r"\d{4}_\d{2}.png", f)[0].split("_")[0])) for f in os.listdir() if f.endswith(".png")
         ]
 
         n_ind = len(set([i for f, i in indices]))
 
-        train_cutoff, test_cutoff = round(train_p * n_ind), round(
-            (train_p + drop_p) * n_ind
-        )
+        train_cutoff, test_cutoff = round(train_p * n_ind), round((train_p + drop_p) * n_ind)
 
         for f, i in indices:
             if i < train_cutoff:
@@ -237,10 +221,7 @@ def shuffle_names(dir_name, seed=1):
         print("found ", len(fnames), " pngs")
         dict_name = list(
             zip(
-                [
-                    str(x).rjust(5, "0") + ".png"
-                    for x in np.random.permutation(len(fnames))
-                ],
+                [str(x).rjust(5, "0") + ".png" for x in np.random.permutation(len(fnames))],
                 fnames,
             )
         )
@@ -257,6 +238,7 @@ def shuffle_names(dir_name, seed=1):
 
 
 def image_preproc(x):
+    """Preprocesses an image to be ready for the model"""
     x_ = x.copy()
     x_ = np.reshape(x_, x_.shape + (1,))
     x_ = np.reshape(x_, (1,) + x_.shape)
@@ -264,6 +246,7 @@ def image_preproc(x):
 
 
 def predict_mod(model, x, thresh=0.5):
+    """Predicts a new image using a model"""
     x = image_preproc(x)
     y = model.predict(x)
     y[y > thresh] = 1
@@ -273,6 +256,7 @@ def predict_mod(model, x, thresh=0.5):
 
 
 def predict_from_path(model_path, x_paths, save_dir=None, thresh=0.5):
+    """Predicts a folder of images using the path of a model"""
     assert os.path.isfile(model_path), "Model not found"
     model = tf.keras.models.load_model(model_path)
 
@@ -281,9 +265,7 @@ def predict_from_path(model_path, x_paths, save_dir=None, thresh=0.5):
         if save_dir:
             os.makedirs(save_dir, exist_ok=True)
         for xp in tqdm(x_paths):
-            if (not os.path.isfile(xp)) or (
-                os.path.split(xp)[1] in os.listdir(save_dir)
-            ):
+            if (not os.path.isfile(xp)) or (os.path.split(xp)[1] in os.listdir(save_dir)):
                 continue
             try:
                 x = io.imread(xp, as_gray=True) / 255
